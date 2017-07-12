@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+	<name>cvx_orec_crf</name>
+	<version>0.0.0</version>
+  	<description>Object detection and 6D pose estimation using coordinate regression forest</description>
+
+	<maintainer email="malasiot@iti.gr">Sotiris Malassiotis</maintainer>
+	<license>BSD</license>
+
+	<buildtool_depend>catkin</buildtool_depend>
+
+	<build_depend>libopencv-dev</build_depend>
+	<build_depend>eigen</build_depend>
+	<build_depend>cvx_util</build_depend>
+	<build_depend>cvx_renderer</build_depend>
+
+	<run_depend>libopencv-dev</run_depend>
+	<run_depend>cvx_util</run_depend>
+	<run_depend>cvx_renderer</run_depend>
+</package>
