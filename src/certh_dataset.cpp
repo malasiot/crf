@@ -57,7 +57,7 @@ void CERTH_Dataset::load_pose(const string &info_path, Matrix4f &pose)
 
 
 static void parse_label(const string &str, string &label, string &variant) {
-    static regex r("[a-zA-Z0-9]+_([a-zA-Z0-9]+)_([a-zA-Z0-9]+)$") ;
+    static regex r("([a-zA-Z0-9]+)(?:_([a-zA-Z0-9]+))?$") ;
 
     smatch m ;
     if ( regex_search(str, m, r) ) {
@@ -82,8 +82,6 @@ void CERTH_Dataset::loadImages(const std::string &image_path, const PinholeCamer
 
     FileSequence poseseq("pose_", ".txt"), depthseq("depth_", ".png"), clrseq("rgb_", ".png"), maskseq("mask_", ".png") ;
 
-  //  boost::uniform_int<> bg_image_rng(0, bg_rgb_images_.size()-1) ;
-
     for ( ; it != end ; ++it ) {
 
         string dir = it->path() ;
@@ -96,7 +94,6 @@ void CERTH_Dataset::loadImages(const std::string &image_path, const PinholeCamer
 
         parse_label(dir, label, variant) ;
 
-
         label_map_.push_back(label) ;
 
         Vector3f box ;
@@ -106,17 +103,13 @@ void CERTH_Dataset::loadImages(const std::string &image_path, const PinholeCamer
         load_pose((ipath / "w2m.txt").toString(), w2m) ;
 
         vector<string> pose_files = Path::glob( ipath.toString(), "pose_*.txt", false ) ;
-
         num_images = std::min((uint)pose_files.size(), num_images) ;
 
-        std::vector<uint> v ;
-        for(uint i=0 ; i<pose_files.size() ; i++) v.push_back(i) ;
-
-        g.shuffle(v) ;
+        g.shuffle(pose_files) ;
 
         for(uint i=0 ; i<num_images ; i++)
         {
-            const string &pose_file_path = pose_files[v[i]]  ;
+            const string &pose_file_path = pose_files[i]  ;
 
             Matrix4f pose ;
             load_pose(pose_file_path, pose) ;
@@ -169,14 +162,11 @@ void CERTH_Dataset::loadBackgroundImages(const string &image_path, uint num_imag
     vector<string> rgb_files = Path::glob(( dir / "rgb_noseg/").toString(),  "color_*.png", false) ;
     num_images = std::min((uint)rgb_files.size(), num_images) ;
 
-    std::vector<uint> v ;
-    for(uint i=0 ; i<rgb_files.size() ; i++) v.push_back(i) ;
-
-    g.shuffle(v) ;
+    g.shuffle(rgb_files) ;
 
     FileSequence rgbseq("color_", ".png"), depthseq("depth_", ".png") ;
 
-    for(uint i=0 ; i<num_images ; i++)
+    for ( uint i=0 ; i<num_images ; i++)
     {
         const string &rgb_image_path = rgb_files[i] ;
         int id = rgbseq.parseFrameId(rgb_image_path) ;

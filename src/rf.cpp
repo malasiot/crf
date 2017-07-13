@@ -315,7 +315,7 @@ void RandomForest::Tree::split(TrainingContext &ctx, Node *cnode, sample_idx_t b
 
             for ( unsigned int k=0 ; k<ctx.params_.num_thresholds_per_sample ; k++ )
             {
-                float thresh = ctx.rng_.uniform<float>(min_response, max_response) ;
+                float thresh = ctx.rng_.uniform(min_response, max_response) ;
                 thresholds.push_back(thresh) ;
             }
 
@@ -506,10 +506,8 @@ float Feature::response(const Dataset &ds, sample_idx_t idx, bool training)
 
 void Feature::sample(const Dataset &ds, const TrainingParametersStructure &params, RNG &rng)
 {
-    boost::uniform_int<> offset_dist_rgb(-params.max_probe_offset_rgb, params.max_probe_offset_rgb);
-    boost::uniform_int<> channel_dist(0, 2);
 
-    type_ = ( rng.uniform<float>(0, 1) < params.depth_to_color_ratio ) ? DEPTH : COLOR ;
+    type_ = ( rng.uniform(0.0, 1.0) < params.depth_to_color_ratio ) ? DEPTH : COLOR ;
 
     if ( type_ == DEPTH ) {
 

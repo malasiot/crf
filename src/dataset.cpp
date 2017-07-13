@@ -94,14 +94,25 @@ void Dataset::makeBackgroundSamples(uint bg_idx, uint fg_idx, RNG &g, uint n_sam
 
     uint w = depth.cols, h = depth.rows ;
 
-    for( uint i=0 ; i<n_samples ; i++ )
-    {
-        int x, y ;
-        while (1) {
-            x = g.uniform<int>(0, w-1) ;
-            y = g.uniform<int>(0, h-1) ;
-            if ( depth[y][x] != 0 ) break ;
+    vector<uint> idx ;
+
+    for(uint i=0 ; i<h ; i++)
+        for(uint j=0 ; j<w ; j++)
+        {
+            if ( depth[i][j] != 0 )
+                idx.push_back(i * w + j) ;
         }
+
+    uint nsamples = std::min(n_samples, (uint)idx.size()) ;
+
+    g.shuffle(idx) ;
+
+    // do the sampling
+
+    for( uint i=0 ; i<nsamples ; i++ )
+    {
+        uint x = idx[i] % w ;
+        uint y = idx[i] / w ;
 
         samples_.push_back(cv::Point(x, y)) ;
         image_idx_.push_back(fg_idx) ;
@@ -109,14 +120,10 @@ void Dataset::makeBackgroundSamples(uint bg_idx, uint fg_idx, RNG &g, uint n_sam
         coordinates_.push_back(Vector3f(0, 0, 0)) ;
         labels_.push_back(string()) ;
     }
-
 }
 
-Dataset::Dataset()
-{
-
+Dataset::Dataset() {
 }
-
 
 
 cv::Mat Dataset::makePlanarDepth(const PinholeCamera &cam, const Matrix4f &pose, const Vector3f &box)

@@ -1,4 +1,5 @@
 #include "rf.hpp"
+#include "certh_dataset.hpp"
 
 #include <cvx/util/misc/arg_parser.hpp>
 
@@ -40,7 +41,7 @@ int main(int argc, const char *argv[])
 
     if ( train_structure ) {
 
-        Dataset ds ;
+        CERTH_Dataset ds ;
 //"/home/malasiot/Downloads/bgimages/data/BG_Rooms/"
         ds.loadBackgroundImages(bg_image_folder, 500);
         ds.loadImages(image_folder, cam, 100, 500, 500) ;
@@ -56,7 +57,7 @@ int main(int argc, const char *argv[])
 
     if ( train_retrofit ) {
 
-        Dataset ds ;
+        CERTH_Dataset ds ;
 
         ds.loadBackgroundImages(bg_image_folder, 500);
         ds.loadImages(image_folder, cam, 100, 1500, 1500) ;
