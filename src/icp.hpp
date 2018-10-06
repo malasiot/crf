@@ -10,6 +10,8 @@
 class ICPAligner {
 public:
 
+    using point_list_t = cvx::util::EPointList3f ;
+
     struct Parameters {
         float inlier_distance_threshold_ ;
         float inlier_threshold_update_factor_ ;
@@ -33,13 +35,13 @@ public:
     // Point cloud alignment with ICP. Variable target is the static cloud and src is the moving cloud. Variable pose should be initialized
     // with the initial transform
 
-    float align(const std::vector<Eigen::Vector3f> &target, const std::vector<Eigen::Vector3f> &src, Eigen::Isometry3f &pose, uint &n_inliers) {
+    float align(const point_list_t &target, const point_list_t &src, Eigen::Isometry3f &pose, uint &n_inliers) {
         cvx::util::KDTree3 tree(target) ;
         return align(tree, target, src, pose, n_inliers) ;
     }
 
     // usefull when one needs to do several alignments to the same model
-    float align(cvx::util::KDTree3 &stree, const std::vector<Eigen::Vector3f> &target, const std::vector<Eigen::Vector3f> &src, Eigen::Isometry3f &pose,
+    float align(cvx::util::KDTree3 &stree, const point_list_t &target, const point_list_t &src, Eigen::Isometry3f &pose,
                 uint &n_inliers) ;
 
 

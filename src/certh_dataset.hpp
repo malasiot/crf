@@ -17,7 +17,7 @@ struct CERTH_Dataset: public Dataset {
 private:
     void load_pose(const std::string &path, Eigen::Matrix4f &pose) ;
     bool load_camera(const std::string &dir, Eigen::Matrix4f &cam) ;
-    bool load_cloud(const std::string &fp, std::vector<Eigen::Vector3f> &cloud);
+    bool load_cloud(const std::string &fp, cvx::util::EPointList3f &cloud);
 } ;
 
 #endif

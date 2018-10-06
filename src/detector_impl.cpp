@@ -6,20 +6,21 @@
 #include <cvx/util/geometry/octree.hpp>
 #include <cvx/util/misc/cv_helpers.hpp>
 
-#include <cvx/renderer/scene.hpp>
-#include <cvx/renderer/renderer.hpp>
+#include <cvx/viz/scene/scene.hpp>
+#include <cvx/viz/scene/camera.hpp>
+#include <cvx/viz/renderer/renderer.hpp>
 
 #include <fstream>
 #include <queue>
 
 using namespace cvx::util ;
-using namespace cvx::renderer ;
+using namespace cvx::viz ;
 using namespace std;
 using namespace Eigen ;
 
 //#define DEBUG
 
-void compute_model_bounds(const vector<Vector3f> &cloud, ModelData &data) {
+void compute_model_bounds(const EPointList3f &cloud, ModelData &data) {
 
     Vector3f c(0, 0, 0) ;
     uint count = 0 ;
@@ -69,7 +70,7 @@ bool ObjectDetectorImpl::init(const string &rf_path, const Dataset &ds) {
 
     forest_.read(rf_path) ;
 
-    RenderingContextPtr rctx = getOffscreenContext(640, 480) ;
+ //   OffscreenRenderingWindow rctx(640, 480) ;
 
     labels_ = ds.label_map_ ;
     for( uint i=0 ; i<ds.models_.size() ; i++ ) {
@@ -77,7 +78,7 @@ bool ObjectDetectorImpl::init(const string &rf_path, const Dataset &ds) {
 
         data.scene_ = ds.models_[i] ;
         data.cloud_ = ds.clouds_[i] ;
-        data.renderer_ = std::make_shared<SceneRenderer>(data.scene_, rctx) ;
+        data.renderer_ = std::make_shared<Renderer>(data.scene_) ;
         data.camera_ = ds.world_to_model_[i] ;
         compute_model_bounds(ds.clouds_[i], data) ;
 
@@ -446,8 +447,17 @@ cv::Mat ObjectDetectorImpl::render_mask(const string &clabel, const PinholeCamer
     axis_switch(2, 2) = -1 ;
 
     Matrix4f cc = axis_switch * pose * data.camera_ ;
-    PerspectiveCamera rcam(cam, cc) ;
-    data.renderer_->render(rcam, SceneRenderer::RENDER_FLAT) ;
+
+    CameraPtr pcam(new PerspectiveCamera(cam)) ;
+    pcam->setViewTransform(cc);
+    pcam->setBgColor({0, 0, 0, 1});
+
+    // create the offscreen window
+
+    OffscreenRenderingWindow ow(cam.sz().width, cam.sz().height) ;
+
+    data.renderer_->init() ;
+    data.renderer_->render(pcam) ;
 
     return data.renderer_->getDepth() ;
 }
@@ -550,7 +560,7 @@ float ObjectDetectorImpl::refine_pose_icp(const string &clabel, const cv::Mat &d
 
     cv::Mat_<ushort> depth(dim) ;
 
-    vector<Vector3f> ipts, rpts ;
+    EPointList3f ipts, rpts ;
 
     for ( uint i=0 ; i<h ; i++ ) {
         for(uint j=0 ; j<w ; j++ ) {

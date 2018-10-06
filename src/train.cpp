@@ -18,20 +18,28 @@ int main(int argc, const char *argv[])
     bool train_structure = true, train_retrofit = true ;
 
     ArgumentParser args ;
-    args.addOption("-h|--help", show_help, true).setMaxArgs(0).setDescription("This help message") ;
+    args.setDescription("Usage: train [options] <data_dir> <out_dir>");
+    args.addOption("-h|--help", show_help).setMaxArgs(0).setDescription("This help message").setImplicit("true") ;
     args.addOption("--cores", n_cores).setName("<n>").setDescription("number of cores to use") ;
     args.addOption("--bg-images", bg_image_folder).setName("<folder>").setDescription("Background image folder").required() ;
-    args.addOption("--structure", train_structure, true).setMaxArgs(0).setDescription("train forest structure") ;
-    args.addOption("--retrofit", train_retrofit, true).setMaxArgs(0).setDescription("populate forest leafs") ;
+    args.addOption("--structure", train_structure).setMaxArgs(0).setDescription("train forest structure").setImplicit("true") ;
+    args.addOption("--retrofit", train_retrofit).setMaxArgs(0).setDescription("populate forest leafs").setImplicit("true") ;
     args.addPositional(image_folder) ;
     args.addPositional(out_path) ;
 
-    if ( !args.parse(argc, argv) || show_help ) {
-        cerr << "Usage: train [options] <data_dir> <out_dir>\n";
-        cerr << "Options:\n" ;
-        args.printOptions(cerr) ;
-        return 1;
-    }
+
+        try {
+            args.parse(argc, argv) ;
+
+            if ( show_help )
+                args.printUsage(std::cout) ;
+
+        } catch ( ArgumentParserException &e ) {
+            cout << e.what() << endl ;
+            args.printUsage(std::cerr) ;
+            return 1 ;
+        }
+
 
     // parse arguments
 

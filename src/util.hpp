@@ -3,7 +3,7 @@
 
 #include <Eigen/Geometry>
 #include <vector>
-#include <boost/random.hpp>
+
 
 #include <opencv2/opencv.hpp>
 #include <cvx/util/camera/camera.hpp>

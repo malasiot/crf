@@ -7,6 +7,7 @@
 #include <regex>
 
 using namespace cvx::util ;
+using namespace cvx::viz ;
 using namespace std ;
 using namespace Eigen ;
 
@@ -100,7 +101,7 @@ void OBJ20_Dataset::loadImages(const std::string &image_path, const PinholeCamer
 
     uint  n_images = 0 ;
 
-    DirectoryIterator it(image_path, matchDirectories()), end ;
+    DirectoryIterator it(image_path, DirectoryFilters::MatchDirectories), end ;
 
     FileSequence infoseq("info_", ".txt"), depthseq("depth_", ".png"), clrseq("color_", ".png"), maskseq("mask_", ".png") ;
 
@@ -203,7 +204,7 @@ void OBJ20_Dataset::loadBackgroundImages(const string &image_path, uint num_imag
 
 }
 
-bool OBJ20_Dataset::load_cloud(const string &fp, const Matrix4f &world_to_model, vector<Vector3f> &cloud) {
+bool OBJ20_Dataset::load_cloud(const string &fp, const Matrix4f &world_to_model, EPointList3f &cloud) {
 
     ifstream strm(fp.c_str()) ;
 
@@ -281,7 +282,7 @@ void OBJ20_Dataset::loadModels(const string &models_path) {
 
     uint16_t n_labels = 0 ;
 
-    DirectoryIterator it(models_path, matchDirectories()), end ;
+    DirectoryIterator it(models_path, DirectoryFilters::MatchDirectories), end ;
 
     for ( ; it != end ; ++ it ) {
 
@@ -306,13 +307,15 @@ void OBJ20_Dataset::loadModels(const string &models_path) {
         load_camera( (ipath / "info").toString(), world_to_model ) ;
 
         world_to_model_.push_back(world_to_model) ;
-        clouds_.push_back(vector<Vector3f>()) ;
+        clouds_.push_back(EPointList3f()) ;
         load_cloud(cloud_path.toString(), world_to_model, clouds_[n_labels] ) ;
 
  //               if ( label == "Kinfu_BattleCat1_light" ) {
         try {
 
-            models_.push_back( cvx::renderer::Scene::load(model_path.toString()) ) ;
+            ScenePtr scene(new Scene) ;
+           scene->load(model_path.toString()) ;
+            models_.push_back( scene)  ;
   //          data.scene_ = Scene::load(model_path.native()) ;
 //            data.renderer_ = boost::shared_ptr<SceneRenderer>(new SceneRenderer(data.scene_, rctx)) ;
         }

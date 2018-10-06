@@ -7,7 +7,7 @@ using namespace Eigen ;
 using namespace std ;
 using namespace cvx::util;
 
-float ICPAligner::align(KDTree3 &search, const vector<Vector3f> &target_pts, const std::vector<Vector3f> &src, Isometry3f &pose, uint &n_inliers)
+float ICPAligner::align(KDTree3 &search, const point_list_t &target_pts, const point_list_t &src, Isometry3f &pose, uint &n_inliers)
 {
     Isometry3f current(pose) ;
 

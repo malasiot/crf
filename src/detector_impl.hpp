@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 
-#include <cvx/renderer/scene.hpp>
-#include <cvx/renderer/renderer.hpp>
+#include <cvx/viz/scene/scene.hpp>
+#include <cvx/viz/renderer/renderer.hpp>
 #include <cvx/util/camera/camera.hpp>
 #include <cvx/util/geometry/kdtree.hpp>
 #include <cvx/util/misc/path.hpp>
@@ -18,13 +18,16 @@
 typedef std::map<std::string, uint16_t> LabelMapType ;
 typedef std::map<std::string, float> LabelProbMapType ;
 
+using RendererPtr = std::shared_ptr<cvx::viz::Renderer> ;
+using ScenePtr = cvx::viz::ScenePtr ;
+
 struct ModelData {
-    cvx::renderer::ScenePtr scene_ ;
-    std::vector<Eigen::Vector3f> cloud_ ;
+    ScenePtr scene_ ;
+    cvx::util::EPointList3f cloud_ ;
     cvx::util::KDTree3 search_ ;
     Eigen::Vector3f center_, bmin_, bmax_ ;
     float diameter_ ;
-    cvx::renderer::SceneRendererPtr renderer_ ;
+    RendererPtr renderer_ ;
     Eigen::Matrix4f camera_ ;
 };
 

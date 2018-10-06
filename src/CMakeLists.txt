@@ -11,7 +11,7 @@ add_executable(train
         util.cpp
         util.hpp
 )
-target_link_libraries(train ${catkin_LIBRARIES})
+target_link_libraries(train cvx_util cvx_viz Qt5::Widgets ${OpenCV_LIBRARIES} )
 
 add_executable(detect
         detect.cpp
@@ -33,4 +33,4 @@ add_executable(detect
         icp.cpp
 )
 
-target_link_libraries(detect ${catkin_LIBRARIES})
+target_link_libraries(detect cvx_util cvx_viz ${OpenCV_LIBRARIES})

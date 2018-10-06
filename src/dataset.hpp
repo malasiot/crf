@@ -5,8 +5,9 @@
 
 #include <cvx/util/camera/camera.hpp>
 #include <cvx/util/misc/binary_stream.hpp>
+#include <cvx/util/geometry/point_list.hpp>
 #include <cvx/util/math/rng.hpp>
-#include <cvx/renderer/scene.hpp>
+#include <cvx/viz/scene/scene.hpp>
 
 typedef uint64_t sample_idx_t ;
 typedef uint32_t node_idx_t ;
@@ -66,9 +67,9 @@ struct Dataset {
     std::vector<Eigen::Vector3f> boxes_ ; // object bounding boxes
     std::vector<Eigen::Vector3f> coordinates_ ; // 3D coordinates of each sample point
     std::vector<std::string> label_map_ ;
-    std::vector<cvx::renderer::ScenePtr> models_ ;
+    std::vector<cvx::viz::ScenePtr> models_ ;
     std::vector<Eigen::Matrix4f> world_to_model_ ;
-    std::vector<std::vector<Eigen::Vector3f> > clouds_ ;
+    std::vector<cvx::util::EPointList3f> clouds_ ;
 
     void makeRandomSamples(const cv::Mat &rgb, const cv::Mat &depth, const PinholeCamera &cam,
                            RNG &g, uint n_samples, const uint32_t image_index, const std::string &label) ;

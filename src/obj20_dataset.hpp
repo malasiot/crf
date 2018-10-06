@@ -16,7 +16,7 @@ struct OBJ20_Dataset: public Dataset {
 private:
     void load_pose(const std::string &info_path, std::string &label) ;
     bool load_camera(const std::string &dir, Eigen::Matrix4f &cam) ;
-    bool load_cloud(const std::string &fp, const Eigen::Matrix4f &world_to_model, std::vector<Eigen::Vector3f> &cloud);
+    bool load_cloud(const std::string &fp, const Eigen::Matrix4f &world_to_model, cvx::util::EPointList3f &cloud);
 } ;
 
 #endif
