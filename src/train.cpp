@@ -45,7 +45,7 @@ int main(int argc, const char *argv[])
 
     omp_set_num_threads(n_cores);
 
-    PinholeCamera cam(570, 570, 640/2, 480/2, cv::Size(640, 480)) ;
+    PinholeCamera cam(550, 550, 640/2, 480/2, cv::Size(640, 480)) ;
 
     if ( train_structure ) {
 

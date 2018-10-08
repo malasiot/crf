@@ -586,10 +586,14 @@ void RegressionModel::aggregate(const Dataset &data, sample_idx_t idx)
 
     uint q_bin_x, q_bin_y, q_bin_z ;
 
+
     if ( bin_x < 0 || bin_x >= 1.0 ) return ;
     else q_bin_x = n_bins_x_ * bin_x ;
 
-    if ( bin_y < 0 || bin_y >= 1.0 ) return ;
+    if ( bin_y < 0 || bin_y >= 1.0 ) {
+        cout << p.adjoint() << endl ;
+        return ;
+    }
     else q_bin_y = n_bins_y_ * bin_y ;
 
     if ( bin_z < 0 || bin_z >= 1.0 ) return ;

@@ -8,7 +8,7 @@
  *  On this folder put the following files.
  *
  *  box.txt (3D model extents: X Y Z)
- *  w2m.txt (4x4 matrix from world to model coordinates)
+ *  w2m.txt (4x4 matrix from world to model coordinates. model coordinates should be -e/2 < x < e/2)
  *  model.obj ( 3D triangle model of the object )
  *  merged.ply (a point cloud of the object e.g. obtained by merging several views or by model sampling)
  *
