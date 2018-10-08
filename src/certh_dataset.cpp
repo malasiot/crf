@@ -257,6 +257,7 @@ void CERTH_Dataset::loadModels(const string &models_path) {
             ScenePtr scene(new Scene) ;
             scene->load(model_path.toString()) ;
             models_.push_back( scene ) ;
+
   //          data.scene_ = Scene::load(model_path.native()) ;
 //            data.renderer_ = boost::shared_ptr<SceneRenderer>(new SceneRenderer(data.scene_, rctx)) ;
         }
