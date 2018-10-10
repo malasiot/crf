@@ -249,7 +249,8 @@ void CERTH_Dataset::loadModels(const string &models_path) {
         load_pose( (ipath / "w2m.txt").toString(), world_to_model ) ;
 
         // poses already transform from camera to model
-        world_to_model_.push_back(Matrix4f::Identity()) ;
+    //    world_to_model_.push_back(Matrix4f::Identity()) ;
+         world_to_model_.push_back(world_to_model) ;
         clouds_.push_back(EPointList3f()) ;
         load_cloud(cloud_path.toString(), clouds_.back() ) ;
 

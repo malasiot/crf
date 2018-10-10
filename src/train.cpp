@@ -15,7 +15,7 @@ int main(int argc, const char *argv[])
     string  image_folder, out_path, bg_image_folder ;
     uint n_cores = omp_get_max_threads() ;
     bool show_help = false ;
-    bool train_structure = true, train_retrofit = true ;
+    bool train_structure = false, train_retrofit = false ;
 
     ArgumentParser args ;
     args.setDescription("Usage: train [options] <data_dir> <out_dir>");

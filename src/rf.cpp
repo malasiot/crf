@@ -17,7 +17,7 @@ RandomForest::RandomForest() {
 
 void RandomForest::read(const string &data_path, const string &prefix)
 {
-    vector<string> tree_files = Path::glob(data_path, prefix + "*") ;
+    vector<string> tree_files = Path::glob(data_path, prefix + "*", false) ;
 
     for ( const string &tree_file: tree_files )
     {

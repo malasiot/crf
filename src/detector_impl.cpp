@@ -5,6 +5,7 @@
 #include <cvx/util/geometry/kdtree.hpp>
 #include <cvx/util/geometry/octree.hpp>
 #include <cvx/util/misc/cv_helpers.hpp>
+#include <cvx/util/imgproc/rgbd.hpp>
 
 #include <cvx/viz/scene/scene.hpp>
 #include <cvx/viz/scene/camera.hpp>
@@ -70,8 +71,6 @@ bool ObjectDetectorImpl::init(const string &rf_path, const Dataset &ds) {
 
     forest_.read(rf_path) ;
 
- //   OffscreenRenderingWindow rctx(640, 480) ;
-
     labels_ = ds.label_map_ ;
     for( uint i=0 ; i<ds.models_.size() ; i++ ) {
         ModelData data ;
@@ -79,6 +78,7 @@ bool ObjectDetectorImpl::init(const string &rf_path, const Dataset &ds) {
         data.scene_ = ds.models_[i] ;
         data.cloud_ = ds.clouds_[i] ;
         data.renderer_ = std::make_shared<Renderer>(data.scene_) ;
+        data.renderer_->init() ;
         data.camera_ = ds.world_to_model_[i] ;
         compute_model_bounds(ds.clouds_[i], data) ;
 
@@ -148,7 +148,7 @@ void ObjectDetectorImpl::sample_pose_hypotheses(const std::string &clabel,
     //boost::timer::auto_cpu_timer t ;
 
     vector<float> weights ;
-    vector<Vector2f> pts ;
+    EPointList2f pts ;
 
     ModelData &md = model_map_[clabel] ;
 
@@ -236,18 +236,21 @@ void ObjectDetectorImpl::sample_pose_hypotheses(const std::string &clabel,
             if ( leafs[t2][idx2]->data_.coordinates_.count(clabel) == 0 ) continue ;
             else o2 = leafs[t2][idx2]->data_.coordinates_[clabel] ;
 
-            Vector3f p0 = back_project(dmap, cam, ds.samples_[idx0]) ;
+            Vector3f p0 = back_project(dmap, cam, ds.samples_[idx0]) ; // these are in camera coordinate frame
             Vector3f p1 = back_project(dmap, cam, ds.samples_[idx1]) ;
             Vector3f p2 = back_project(dmap, cam, ds.samples_[idx2]) ;
 
             Matrix3Xf src(3, 3), dst(3, 3) ;
+
+            Affine3f m2w(md.camera_.inverse()) ;
+            o0 = m2w * o0 ; o1 = m2w * o1 ; o2 = m2w * o2 ; // these are in world coordinate frame
 
             src.col(0) = o0 ; src.col(1) = o1 ; src.col(2) = o2 ;
             dst.col(0) = p0 ; dst.col(1) = p1 ; dst.col(2) = p2 ;
 
             // find alignment transformation
 
-            Affine3f H = find_rigid(src, dst);
+            Affine3f H = find_rigid(src, dst); // c2w
 
             // reject erroneous ones
 
@@ -262,10 +265,12 @@ void ObjectDetectorImpl::sample_pose_hypotheses(const std::string &clabel,
             cv::circle(clr, ds.samples_[idx2], 3, cv::Scalar(255, 255, 0), 4) ;
 
             cv::imwrite("/tmp/samples.png", clr) ;
+
+            cout << H.matrix() << endl ;
 #endif
             // store accepted pose
 #pragma omp critical
-            poses.push_back(H.matrix()) ;
+            poses.push_back(H.matrix()) ; // c2w
         }
     }
 }
@@ -280,7 +285,9 @@ float ObjectDetectorImpl::compute_energy(const std::string &clabel, const Matrix
 
     cv::Mat_<ushort> zbuffer = render_mask(clabel, cam, pose) ;
     uint w = zbuffer.cols, h = zbuffer.rows ;
-
+#ifdef DEBUG
+   cv::imwrite("/tmp/zz.png", zbuffer) ;
+#endif
     // depth component
 
     float ed = 0 ;
@@ -346,6 +353,8 @@ float ObjectDetectorImpl::compute_energy(const std::string &clabel, const Matrix
     float cet = params_.coord_error_threshold_ * data.diameter_ ;
     cet = cet * cet ;
 
+    Affine3f m2w(data.camera_.inverse()) ;
+
     for( uint i=0 ; i<n_samples ; i++ ) {
         const cv::Point &pt = ds.samples_[i] ;
 
@@ -367,7 +376,7 @@ float ObjectDetectorImpl::compute_energy(const std::string &clabel, const Matrix
             RandomForest::Node *n = leafs[j][i] ;
 
             map<string, Vector3f>::const_iterator it = n->data_.coordinates_.find(clabel) ;
-            Vector3f op = it->second ;
+            Vector3f op = m2w * it->second ;
 
             ec += std::min((ip - op).squaredNorm(), cet)/cet ;
             ec_count ++ ;
@@ -380,7 +389,7 @@ float ObjectDetectorImpl::compute_energy(const std::string &clabel, const Matrix
     else ec /= ec_count ;
 
 #ifdef DEBUG
-    cv::imwrite("/tmp/zbuffer.png", certh_core::depthViz(zbuffer)) ;
+    cv::imwrite("/tmp/zbuffer.png", depthViz(zbuffer)) ;
     cout << ed << ' ' << eo << ' ' << ec << endl ;
 #endif
 
@@ -445,18 +454,13 @@ cv::Mat ObjectDetectorImpl::render_mask(const string &clabel, const PinholeCamer
     Matrix4f axis_switch = Matrix4f::Identity() ;
     axis_switch(1, 1) = -1 ;
     axis_switch(2, 2) = -1 ;
-
-    Matrix4f cc = axis_switch * pose * data.camera_ ;
+//                              c2w
+    Matrix4f cc = axis_switch * pose  ;
 
     CameraPtr pcam(new PerspectiveCamera(cam)) ;
     pcam->setViewTransform(cc);
     pcam->setBgColor({0, 0, 0, 1});
 
-    // create the offscreen window
-
-    OffscreenRenderingWindow ow(cam.sz().width, cam.sz().height) ;
-
-    data.renderer_->init() ;
     data.renderer_->render(pcam) ;
 
     return data.renderer_->getDepth() ;
@@ -489,6 +493,8 @@ void ObjectDetectorImpl::refine_pose_candidates(const string &clabel, const Pinh
 
             vector<Vector3f> ipts, opts ;
 
+             Affine3f m2w(data.camera_.inverse()) ;
+
             for( uint i=0 ; i<n_samples ; i++ ) {
                 const cv::Point &pt = ds.samples_[i] ;
 
@@ -508,7 +514,7 @@ void ObjectDetectorImpl::refine_pose_candidates(const string &clabel, const Pinh
                 for( uint j=0 ; j<n_trees ; j++ ) {
                     RandomForest::Node *n = leafs[j][i] ;
 
-                    Vector3f op = n->data_.coordinates_[clabel] ;
+                    Vector3f op = m2w * n->data_.coordinates_[clabel] ;
 
                     float e = ( H * op - ip).norm() ;
                     if ( e < min_e ) {
@@ -596,6 +602,7 @@ float ObjectDetectorImpl::refine_pose_icp(const string &clabel, const cv::Mat &d
     return error ;
 
 }
+
 
 void ObjectDetectorImpl::detectAll(const cv::Mat &rgb, const cv::Mat &depth, const cv::Mat &mask, const PinholeCamera &cam,
                                    vector<ObjectDetector::Result> &results) {

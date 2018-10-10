@@ -34,3 +34,6 @@ add_executable(detect
 )
 
 target_link_libraries(detect cvx_util cvx_viz ${OpenCV_LIBRARIES})
+
+add_executable(render_virtual_scene render_virtual_scene.cpp)
+target_link_libraries(render_virtual_scene cvx_util cvx_viz)
