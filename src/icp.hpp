@@ -10,7 +10,7 @@
 class ICPAligner {
 public:
 
-    using point_list_t = cvx::util::EPointList3f ;
+    using point_list_t = cvx::util::PointList3f ;
 
     struct Parameters {
         float inlier_distance_threshold_ ;

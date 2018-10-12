@@ -183,7 +183,7 @@ void CERTH_Dataset::loadBackgroundImages(const string &image_path, uint num_imag
 
 }
 
-bool CERTH_Dataset::load_cloud(const string &fp, EPointList3f &cloud) {
+bool CERTH_Dataset::load_cloud(const string &fp, PointList3f &cloud) {
 
     ifstream strm(fp.c_str()) ;
 
@@ -251,7 +251,7 @@ void CERTH_Dataset::loadModels(const string &models_path) {
         // poses already transform from camera to model
     //    world_to_model_.push_back(Matrix4f::Identity()) ;
          world_to_model_.push_back(world_to_model) ;
-        clouds_.push_back(EPointList3f()) ;
+        clouds_.push_back(PointList3f()) ;
         load_cloud(cloud_path.toString(), clouds_.back() ) ;
 
         try {

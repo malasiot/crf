@@ -23,7 +23,7 @@ using ScenePtr = cvx::viz::ScenePtr ;
 
 struct ModelData {
     ScenePtr scene_ ;
-    cvx::util::EPointList3f cloud_ ;
+    cvx::util::PointList3f cloud_ ;
     cvx::util::KDTree3 search_ ;
     Eigen::Vector3f center_, bmin_, bmax_ ;
     float diameter_ ;

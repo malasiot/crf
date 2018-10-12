@@ -14,6 +14,9 @@
 #include <fstream>
 #include <queue>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 using namespace cvx::util ;
 using namespace cvx::viz ;
 using namespace std;
@@ -21,7 +24,7 @@ using namespace Eigen ;
 
 //#define DEBUG
 
-void compute_model_bounds(const EPointList3f &cloud, ModelData &data) {
+void compute_model_bounds(const PointList3f &cloud, ModelData &data) {
 
     Vector3f c(0, 0, 0) ;
     uint count = 0 ;
@@ -148,7 +151,7 @@ void ObjectDetectorImpl::sample_pose_hypotheses(const std::string &clabel,
     //boost::timer::auto_cpu_timer t ;
 
     vector<float> weights ;
-    EPointList2f pts ;
+    PointList2f pts ;
 
     ModelData &md = model_map_[clabel] ;
 
@@ -242,7 +245,7 @@ void ObjectDetectorImpl::sample_pose_hypotheses(const std::string &clabel,
 
             Matrix3Xf src(3, 3), dst(3, 3) ;
 
-            Affine3f m2w(md.camera_.inverse()) ;
+            Affine3f m2w(md.camera_.inverse().eval()) ;
             o0 = m2w * o0 ; o1 = m2w * o1 ; o2 = m2w * o2 ; // these are in world coordinate frame
 
             src.col(0) = o0 ; src.col(1) = o1 ; src.col(2) = o2 ;
@@ -353,7 +356,8 @@ float ObjectDetectorImpl::compute_energy(const std::string &clabel, const Matrix
     float cet = params_.coord_error_threshold_ * data.diameter_ ;
     cet = cet * cet ;
 
-    Affine3f m2w(data.camera_.inverse()) ;
+    Matrix4f cami(data.camera_.inverse()) ;
+    Affine3f m2w(cami) ;
 
     for( uint i=0 ; i<n_samples ; i++ ) {
         const cv::Point &pt = ds.samples_[i] ;
@@ -493,7 +497,8 @@ void ObjectDetectorImpl::refine_pose_candidates(const string &clabel, const Pinh
 
             vector<Vector3f> ipts, opts ;
 
-             Affine3f m2w(data.camera_.inverse()) ;
+            Matrix4f cami(data.camera_.inverse());
+             Affine3f m2w(cami) ;
 
             for( uint i=0 ; i<n_samples ; i++ ) {
                 const cv::Point &pt = ds.samples_[i] ;
@@ -566,7 +571,7 @@ float ObjectDetectorImpl::refine_pose_icp(const string &clabel, const cv::Mat &d
 
     cv::Mat_<ushort> depth(dim) ;
 
-    EPointList3f ipts, rpts ;
+    PointList3f ipts, rpts ;
 
     for ( uint i=0 ; i<h ; i++ ) {
         for(uint j=0 ; j<w ; j++ ) {

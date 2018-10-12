@@ -204,7 +204,7 @@ void OBJ20_Dataset::loadBackgroundImages(const string &image_path, uint num_imag
 
 }
 
-bool OBJ20_Dataset::load_cloud(const string &fp, const Matrix4f &world_to_model, EPointList3f &cloud) {
+bool OBJ20_Dataset::load_cloud(const string &fp, const Matrix4f &world_to_model, PointList3f &cloud) {
 
     ifstream strm(fp.c_str()) ;
 
@@ -307,7 +307,7 @@ void OBJ20_Dataset::loadModels(const string &models_path) {
         load_camera( (ipath / "info").toString(), world_to_model ) ;
 
         world_to_model_.push_back(world_to_model) ;
-        clouds_.push_back(EPointList3f()) ;
+        clouds_.push_back(PointList3f()) ;
         load_cloud(cloud_path.toString(), world_to_model, clouds_[n_labels] ) ;
 
  //               if ( label == "Kinfu_BattleCat1_light" ) {

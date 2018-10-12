@@ -69,7 +69,7 @@ struct Dataset {
     std::vector<std::string> label_map_ ;
     std::vector<cvx::viz::ScenePtr> models_ ;
     std::vector<Eigen::Matrix4f> world_to_model_ ;
-    std::vector<cvx::util::EPointList3f> clouds_ ;
+    std::vector<cvx::util::PointList3f> clouds_ ;
 
     void makeRandomSamples(const cv::Mat &rgb, const cv::Mat &depth, const PinholeCamera &cam,
                            RNG &g, uint n_samples, const uint32_t image_index, const std::string &label) ;

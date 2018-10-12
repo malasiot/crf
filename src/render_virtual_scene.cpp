@@ -15,7 +15,7 @@ using namespace cvx::util ;
 using namespace Eigen ;
 using namespace std ;
 
-void saveCloud(const std::string &filename, EPointList3f &cloud, const Eigen::Matrix4f &mat) {
+void saveCloud(const std::string &filename, PointList3f &cloud, const Eigen::Matrix4f &mat) {
     ofstream strm(filename)     ;
     for( const Vector3f &v: cloud ) {
         strm << "v " << (mat * Vector4f(v.x(), v.y(), v.z(), 1)).adjoint() <<  endl ;
