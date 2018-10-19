@@ -37,10 +37,7 @@ int main(int argc, char *argv[]) {
     light->diffuse_color_ = {0.5, 0.5, 0.5} ;
     s->addLight(LightPtr(light)) ;
 
-    OffscreenRenderingWindow w(640, 480) ;
-
-    Renderer rdr(s) ;
-    rdr.init() ;
+    OffscreenRenderer rdr(640, 480, s) ;
 
     PinholeCamera camera(550, 550, 640/2.0, 480/2.0, cv::Size(640, 480)) ;
 

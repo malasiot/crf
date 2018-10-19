@@ -60,12 +60,12 @@ int main(int argc, char *argv[]) {
 
     vector<ObjectDetector::Result> results ;
     detector.detectAll(rgb, depth, mask, cam, results) ;
-/*
+
     for(uint i=0 ; i<results.size() ; i++) {
         cout << results[i].pose_.inverse() << endl ;
         detector.refine(results[i].label_, depth, cam, results[i].pose_, results[i].error_) ;
     }
-*/
+
     detector.draw(rgb, cam, results) ;
 
     cv::imwrite("/tmp/result.png", rgb) ;

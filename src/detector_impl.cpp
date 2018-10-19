@@ -81,7 +81,6 @@ bool ObjectDetectorImpl::init(const string &rf_path, const Dataset &ds) {
         data.scene_ = ds.models_[i] ;
         data.cloud_ = ds.clouds_[i] ;
         data.renderer_ = std::make_shared<Renderer>(data.scene_) ;
-        data.renderer_->init() ;
         data.camera_ = ds.world_to_model_[i] ;
         compute_model_bounds(ds.clouds_[i], data) ;
 
